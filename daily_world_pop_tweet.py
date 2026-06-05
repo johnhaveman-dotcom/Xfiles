@@ -44,7 +44,9 @@ def get_world_population_data():
         return None, None
 
 
-# === Main Logic ===
+# ... (keep everything above - the get_world_population_data function)
+
+# === Generate tweet ===
 population, daily_growth = get_world_population_data()
 
 if population and daily_growth is not None:
@@ -53,21 +55,26 @@ if population and daily_growth is not None:
     print("✅ Tweet ready:")
     print(tweet)
     
-    # === Post to X ===
-    try:
-        client = tweepy.Client(
-            consumer_key=TWITTER_API_KEY,
-            consumer_secret=TWITTER_API_SECRET,
-            access_token=TWITTER_ACCESS_TOKEN,
-            access_token_secret=TWITTER_ACCESS_SECRET
-        )
-        
-        response = client.create_tweet(text=tweet)
-        print("✅ Successfully posted to X!")
-        print("Tweet ID:", response.data['id'])
-        
-    except Exception as e:
-        print("❌ Failed to post:", e)
-        
+    # === Send to Make.com Webhook ===
+    import requests
+    import os
+    
+    webhook_url = os.getenv("WEBHOOK_URL")
+    
+    if webhook_url:
+        try:
+            response = requests.post(
+                webhook_url, 
+                json={"text": tweet},
+                timeout=10
+            )
+            if response.status_code == 200:
+                print("✅ Successfully sent to Make.com → Buffer!")
+            else:
+                print("❌ Webhook failed:", response.text)
+        except Exception as e:
+            print("❌ Error sending webhook:", e)
+    else:
+        print("⚠️ No WEBHOOK_URL found in environment variables")
 else:
     print("❌ Failed to get population data")
