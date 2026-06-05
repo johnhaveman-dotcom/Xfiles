@@ -3,7 +3,7 @@ name: Daily World Population Tweet
 on:
   schedule:
     - cron: '0 9 * * *'   # Runs every day at 9:00 AM UTC
-  workflow_dispatch:      # Allows manual trigger
+  workflow_dispatch:      # Allows you to run it manually
 
 jobs:
   tweet:
@@ -17,9 +17,9 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 tweepy python-dotenv
+        run: pip install requests beautifulsoup4 tweepy
       
-      - name: Run script
+      - name: Run daily tweet script
         env:
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
           TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
